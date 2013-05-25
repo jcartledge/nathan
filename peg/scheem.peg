@@ -1,0 +1,12 @@
+start = expression
+
+expression
+    = oparen expr:expression+ cparen { return expr; }
+    / ws? atom:atom ws? { return atom; }
+
+validchar = [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+atom = chars:validchar+ { return chars.join(""); }
+ws = [ \t\r\n]+
+oparen = ws? "(" ws?
+cparen = ws? ")" ws?
