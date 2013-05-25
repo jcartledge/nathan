@@ -7,17 +7,11 @@ var evalScheem = function (expr, env) {
 var _eval = function(expr, env) {
   // Numbers evaluate to themselves
   if (typeof expr === 'number') {
-    return {
-      'result':expr,
-      'env':env
-    };
+    return { 'result':expr, 'env':env };
   }
   // Strings which are not keywords are variable references
   if (typeof expr === 'string') {
-    return {
-      'result': env[expr],
-      'env': env
-    };
+    return { 'result': env[expr], 'env': env };
   }
   // Look at head of list for operation
   switch (expr[0]) {
@@ -50,6 +44,8 @@ var _eval = function(expr, env) {
           return loop(exprs.slice(1), head.env, head.result);
         }
       }(expr.slice(1), env));
+    case 'quote':
+      return {'result': expr[1], env: env };
   }
 };
 
