@@ -1,12 +1,19 @@
 start = expression
 
 expression
-    = oparen expr:expression+ cparen { return expr; }
-    / ws? atom:atom ws? { return atom; }
+    = group
+    / quote
+    / atom
+    / empty { return []; }
+
+group     = empty* oparen expr:expression+ cparen { return expr; }
+quote     = empty* "'"    expr:expression         { return ["quote", expr]; }
+atom      = empty*        chars:validchar+ empty* { return chars.join(""); }
+
+empty     = comment / ws
+comment   = ";;" [^\n]* ws?
+ws        = [ \t\r\n]+ comment?
 
 validchar = [0-9a-zA-Z_?!+\-=@#$%^&*/.]
-
-atom = chars:validchar+ { return chars.join(""); }
-ws = [ \t\r\n]+
-oparen = ws? "(" ws?
-cparen = ws? ")" ws?
+oparen    = "(" empty*
+cparen    = ")" empty*
