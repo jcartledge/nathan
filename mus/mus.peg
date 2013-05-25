@@ -1,0 +1,28 @@
+start = seq
+
+seq
+  = left:step right:seq {return { tag: 'seq', left:left, right:right}; }
+  / par
+  / step
+
+step = note / rest
+
+note = ws* note:([a-zA-Z][#]?) octave:[0-9]+ ":" duration:[0-9]+ ws* {
+  return {
+    tag: 'note',
+    pitch: note.join("").toUpperCase() + octave.join(""),
+    dur: parseInt(duration.join(""), 10)
+  };
+}
+
+rest = ws* "_:" duration:[0-9]+ ws* {
+  return {
+    tag: 'rest',
+    duration: parseInt(duration.join(""), 10)
+  };
+}
+
+par
+  = left:step "&" right:seq {return { tag: 'par', left:left, right:right}; }
+
+ws = [ \r\n\t,]+
