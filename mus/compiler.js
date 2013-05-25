@@ -8,6 +8,8 @@ var endTime = function (time, expr) {
         return time + endTime(0, expr.left) + endTime(0, expr.right);
     } else if (expr.tag == 'par') {
         return time + Math.max(endTime(0, expr.left), endTime(0, expr.right));
+    } else if (expr.tag == 'repeat') {
+        return time + (expr.count * endTime(0, expr.section));
     }
 };
 
@@ -59,6 +61,16 @@ var compile = function (musexpr, start, acc) {
             'dur': musexpr.duration,
             'start': start
         });
+    } else if (musexpr.tag == 'repeat') {
+        var repeat = function(expr, count, acc) {
+            if (count === 0) {
+                return acc;
+            } else {
+                return repeat(expr, count - 1, acc.concat(
+                    compile(expr, endTime(start, expr), acc)));
+            }
+        };
+        return repeat(musexpr.section, musexpr.count, acc);
     }
 };
 
