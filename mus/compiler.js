@@ -1,4 +1,3 @@
-
 var endTime = function (time, expr) {
   switch (expr.tag) {
     case 'note':
@@ -66,16 +65,4 @@ var compile = function (musexpr, start, acc) {
   }
 };
 
-var melody_mus =
-{ tag: 'seq',
-  left:
-  { tag: 'seq',
-    left: { tag: 'note', pitch: 'a4', dur: 250 },
-    right: { tag: 'note', pitch: 'b4', dur: 250 } },
-  right:
-  { tag: 'seq',
-    left: { tag: 'note', pitch: 'c4', dur: 500 },
-    right: { tag: 'note', pitch: 'd4', dur: 500 } } };
-
-console.log(melody_mus);
-console.log(compile(melody_mus));
+module.exports = compile;
