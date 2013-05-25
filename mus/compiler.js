@@ -11,6 +11,30 @@ var endTime = function (time, expr) {
     }
 };
 
+var convertPitch = function(pitch) {
+    return (function(note) {
+        return ((note.octave + 5) * 12) + parseInt({
+            'C': 0,
+            'C#': 1,
+            'D': 2,
+            'D#': 3,
+            'E': 4,
+            'F': 5,
+            'F#': 6,
+            'G': 7,
+            'G#': 8,
+            'A': 9,
+            'A#': 10,
+            'B': 11
+        }[note.name], 10);
+    }((function(note) {
+        return {
+            name: note[1],
+            octave: note[2]
+        };
+    }(pitch.toUpperCase().match(/([A-Z])([\d]+)/)))));
+};
+
 var compile = function (musexpr, start, acc) {
     if (!start) start = 0;
     if (!acc) acc = [];
@@ -25,7 +49,7 @@ var compile = function (musexpr, start, acc) {
     } else if (musexpr.tag == 'note') {
         return acc.concat({
             'tag': musexpr.tag,
-            'pitch': musexpr.pitch,
+            'pitch': convertPitch(musexpr.pitch),
             'dur': musexpr.dur,
             'start': start
         });
