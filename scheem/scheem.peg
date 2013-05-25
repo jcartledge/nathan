@@ -3,11 +3,13 @@ start = expression
 expression
     = group
     / quote
+    / decint
     / atom
     / empty { return []; }
 
 group     = empty* oparen expr:expression+ cparen { return expr; }
 quote     = empty* "'"    expr:expression         { return ["quote", expr]; }
+decint    = empty*        num:[0-9]+              { return parseInt(num.join(""), 10); }
 atom      = empty*        chars:validchar+ empty* { return chars.join(""); }
 
 empty     = comment / ws
