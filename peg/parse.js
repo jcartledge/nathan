@@ -5,11 +5,24 @@ var fs = require('fs'); // for loading files
 // Read file contents
 var data = fs.readFileSync('scheem.peg', 'utf-8');
 
-// Show the PEG grammar file
-console.log(data);
-
 // Create my parser
 var parse = PEG.buildParser(data).parse;
 
 // Do a test
-assert.deepEqual( parse("(a b c)"), ["a", "b", "c"] );
+assert.deepEqual(
+  parse(fs.readFileSync('test/test-1.scheem', 'utf-8')),
+  [
+    [
+      "quote",
+      "a"
+    ],
+    [
+      "quote",
+      [
+        "1",
+        "2",
+        "3"
+      ]
+    ]
+  ]
+);
