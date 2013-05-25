@@ -15,11 +15,42 @@ var _eval = function(expr, env) {
   }
   // Look at head of list for operation
   switch (expr[0]) {
-    case '*': return binary_op(expr, env, function(a, b) { return a * b; });
-    case '/': return binary_op(expr, env, function(a, b) { return a / b; });
-    case '+': return binary_op(expr, env, function(a, b) { return a + b; });
-    case '-': return binary_op(expr, env, function(a, b) { return a - b; });
+
+    /**
+     * Numeric operators
+     */
+    case '*':
+      return numbinop(expr, env, function(a, b) {
+        return a * b;
+      });
+    case '/':
+      return numbinop(expr, env, function(a, b) {
+        return a / b;
+      });
+    case '+':
+      return numbinop(expr, env, function(a, b) {
+        return a + b;
+      });
     case '-':
+      return numbinop(expr, env, function(a, b) {
+        return a - b;
+      });
+    case '=':
+      return numbinop(expr, env, function(a, b) {
+        return a === b ? '#t':'#f';
+      });
+    case '>':
+      return numbinop(expr, env, function(a, b) {
+        return a > b ? '#t':'#f';
+      });
+    case '<':
+      return numbinop(expr, env, function(a, b) {
+        return a < b ? '#t':'#f';
+      });
+
+    /**
+     * Var setters
+     */
     case 'define':
       if (typeof expr[1] !== 'string') {
         throw new Error('define: Invalid key: ' + expr[1]);
@@ -35,6 +66,10 @@ var _eval = function(expr, env) {
       }
       env[expr[1]] = _eval(expr[2], env).result;
       return { 'result': 0, 'env': env };
+
+    /**
+     * Flow control
+     */
     case 'begin':
       return (function loop(exprs, env, acc) {
         if(exprs.length === 0) {
@@ -44,18 +79,31 @@ var _eval = function(expr, env) {
           return loop(exprs.slice(1), head.env, head.result);
         }
       }(expr.slice(1), env));
+
+
     case 'quote':
       return {'result': expr[1], env: env };
   }
 };
 
-var binary_op = function(expr, env, op) {
+var numbinop = function(expr, env, op) {
+  console.log(expr);
   var left = _eval(expr[1], env);
-  var right =  _eval(expr[2], left.env);
+  console.log(left);
+  var right = _eval(expr[2], left.env);
+  require_num(op, left.result, right.result);
   return {
     'result':  op(left.result, right.result),
     'env': right.env
   };
+};
+
+var require_num = function(op) {
+  [].slice.call(arguments, 1).map(function(arg) {
+    if (typeof arg !== 'number') {
+      throw new Error(op + ': Number required, value supplied was: ' + arg);
+    }
+  });
 };
 
 module.exports = evalScheem;
