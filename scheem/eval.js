@@ -76,11 +76,7 @@ var _eval = function(expr, env) {
       );
 
     case 'let-one':
-      var scope = define(expr.slice(1, 3), {
-        outer: env,
-        bindings: {}
-      });
-      return _eval(expr[3], scope);
+      return let_one(expr[1], expr[2], expr[3], env);
 
     /**
      * Data operations:
@@ -112,14 +108,10 @@ var _eval = function(expr, env) {
      * Functions
      */
     case 'lambda-one':
-      var param = expr[1];
+      var v = expr[1];
       var body = expr[2];
-      var lambda = function(arg) {
-        var scope = define([param, arg], {
-          outer: env,
-          bindings: {}
-        });
-        return _eval(body, scope).result;
+      var lambda = function(val) {
+        return let_one(v, val, body, env).result;
       };
       return {'result': lambda, 'env': env};
 
@@ -195,6 +187,14 @@ var exists = function(env, v) {
     if (v in env.bindings) return true;
   } else if ('outer' in env) return exists(env.outer, v);
   return false;
+};
+
+var let_one = function(v, val, body, env) {
+  var scope = define([v, val], {
+    outer: env,
+    bindings: {}
+  });
+  return _eval(body, scope);
 };
 
 module.exports = evalScheem;
