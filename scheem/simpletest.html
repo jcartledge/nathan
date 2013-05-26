@@ -1,3 +1,21 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet"
+    href="http://nathansuniversity.com/css/mocha.css" />
+  <script src=
+    "http://nathansuniversity.com/js/jquery-1.7.1.min.js">
+  </script>
+  <script src=
+    "http://nathansuniversity.com/js/chai.js">
+  </script>
+  <script src="http://nathansuniversity.com/js/mocha.js">
+  </script>
+  <script>mocha.setup('tdd')</script>
+  <script>
+var assert = chai.assert;
+
 var evalScheem = function (expr, env) {
   var result = _eval(expr, env);
   return result.result;
@@ -12,7 +30,7 @@ var _eval = function(expr, env) {
   }
   // Strings which are not keywords are variable references
   if (typeof expr === 'string') {
-    return { 'result': lookup(env, expr), 'env': env };
+    return { 'result': env[expr], 'env': env };
   }
   // Look at head of list for operation
   switch (expr[0]) {
@@ -52,8 +70,21 @@ var _eval = function(expr, env) {
     /**
      * Var setters
      */
-    case 'define':  return {'result': 0, 'env': define(expr.slice(1), env)};
-    case 'set!':    return {'result': 0, 'env': set(expr.slice(1), env)};
+    case 'define':
+      if (typeof expr[1] !== 'string') {
+        throw new Error('define: Invalid key: ' + expr[1]);
+      }
+      if (expr[1] in env) {
+        throw new Error('define: Key already defined: ' + expr[1]);
+      }
+      env[expr[1]] = _eval(expr[2], env).result;
+      return { 'result': 0, 'env': env };
+    case 'set!':
+      if (!(expr[1] in env)) {
+        throw new Error('set!: Key not defined: ' + expr[1]);
+      }
+      env[expr[1]] = _eval(expr[2], env).result;
+      return { 'result': 0, 'env': env };
 
     /**
      * Flow control
@@ -74,13 +105,6 @@ var _eval = function(expr, env) {
         {'#t': expr[2], '#f': expr[3]}[predicate.result],
         predicate.env
       );
-
-    case 'let-one':
-      var scope = define(expr.slice(1, 3), {
-        outer: env,
-        bindings: {}
-      });
-      return _eval(expr[3], scope);
 
     /**
      * Data operations:
@@ -128,39 +152,63 @@ var require_num = function(op) {
   });
 };
 
-var define = function(expr, env) {
-  if (typeof expr[0] !== 'string') {
-    throw new Error('define: Invalid key: ' + expr[0]);
-  }
-  if (exists(env, expr[0])) {
-    throw new Error('define: Key already defined: ' + expr[0]);
-  }
-  env.bindings[expr[0]] = _eval(expr[1], env).result;
-  return env;
-};
 
-var set = function(expr, env) {
-  if (!(exists(env, expr[0]))) {
-    throw new Error('set!: Key not defined: ' + expr[0]);
-  }
-  env.bindings[expr[0]] = _eval(expr[1], env).result;
-  return env;
-};
+// Some unit tests
 
-var lookup = function(env, v) {
-  if (!('bindings' in env)) {
-    throw new Error('Not found in env: ' + v);
-  } else if (v in env.bindings) {
-    return env.bindings[v];
-  }
-  return lookup(env.outer, v);
-};
+suite('quote', function() {
+  test('a number', function() {
+    assert.deepEqual(
+      evalScheem(['quote', 3], {}),
+      3
+    );
+  });
+  test('an atom', function() {
+    assert.deepEqual(
+      evalScheem(['quote', 'dog'], {}),
+      'dog'
+    );
+  });
+  test('a list', function() {
+    assert.deepEqual(
+      evalScheem(['quote', [1, 2, 3]], {}),
+      [1, 2, 3]
+    );
+  });
+});
+suite('add', function() {
+  test('two numbers', function() {
+    assert.deepEqual(
+      evalScheem(['+', 3, 5], {}),
+      8
+    );
+  });
+  test('a number and an expression', function() {
+    assert.deepEqual(
+      evalScheem(['+', 3, ['+', 2, 2]], {}),
+      7
+    );
+  });
+  test('a dog and a cat', function() {
+    assert.throws(function() {
+      evalScheem(['+', 'dog', 'cat'], {})
+    });
+  });
+  test('2 + 2 = 4', function() {
+    assert.deepEqual(
+      evalScheem(['+', 2, 2], {}),
+      4
+    );
+  })
+});
 
-var exists = function(env, v) {
-  if('bindings' in env) {
-    if (v in env.bindings) return true;
-  } else if ('outer' in env) return exists(env.outer, v);
-  return false;
-};
-
-module.exports = evalScheem;
+  </script>
+  <script>
+    $(function(){
+      mocha.run();
+    });
+  </script>
+</head>
+<body>
+  <div id="mocha"></div>
+</body>
+</html>
