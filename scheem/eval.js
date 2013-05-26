@@ -81,6 +81,13 @@ var _eval = function(expr, env) {
         }
       }(expr.slice(1), env));
 
+    case 'if':
+      var predicate = _eval(expr[1], env);
+      return _eval(
+        {'#t': expr[2], '#f': expr[3]}[predicate.result],
+        predicate.env
+      );
+
     /**
      * Data operations:
      * cons, car, cdr, quote
@@ -110,9 +117,7 @@ var _eval = function(expr, env) {
 };
 
 var numbinop = function(expr, env, op) {
-  console.log(expr);
   var left = _eval(expr[1], env);
-  console.log(left);
   var right = _eval(expr[2], left.env);
   require_num(op, left.result, right.result);
   return {
