@@ -107,6 +107,28 @@ var _eval = function(expr, env) {
       };
     case 'quote':
       return {'result': expr[1], env: env };
+
+    /**
+     * Functions
+     */
+    case 'lambda-one':
+      var param = expr[1];
+      var body = expr[2];
+      var lambda = function(arg) {
+        var scope = define([param, arg], {
+          outer: env,
+          bindings: {}
+        });
+        return _eval(body, scope).result;
+      };
+      return {'result': lambda, 'env': env};
+
+    default:
+      var fn = evalScheem(expr[0], env);
+      var args = expr.slice(1).map(function(arg) {
+        return evalScheem(arg, env);
+      });
+      return {'result': fn.apply(this, args), 'env': env};
   }
 };
 
@@ -143,8 +165,20 @@ var set = function(expr, env) {
   if (!(exists(env, expr[0]))) {
     throw new Error('set!: Key not defined: ' + expr[0]);
   }
-  env.bindings[expr[0]] = _eval(expr[1], env).result;
-  return env;
+  var updated = _eval(expr[1], env);
+  return update(updated.env, expr[0], updated.result);
+};
+
+var update = function (env, v, val) {
+  if('bindings' in env) {
+    if(v in env.bindings) {
+      env.bindings[v] = val;
+      return env;
+    }
+  }
+  if('outer' in env) {
+    return {bindings: env.bindings, outer: update(env.outer, v, val)};
+  }
 };
 
 var lookup = function(env, v) {
