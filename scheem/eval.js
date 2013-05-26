@@ -93,13 +93,13 @@ var _eval = function(expr, env) {
         'env': tail.env
       };
     case 'car':
-      tail = _eval(expr.slice(1), env);
+      tail = _eval(expr[1], env);
       return {
         'result': tail.result[0],
         'env': tail.env
       };
     case 'cdr':
-      tail = _eval(expr.slice(1), env);
+      tail = _eval(expr[1], env);
       return {
         'result': tail.result.slice(1),
         'env': tail.env
