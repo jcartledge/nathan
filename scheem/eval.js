@@ -56,9 +56,6 @@ var _eval = function(expr, env) {
         predicate.env
       );
 
-    case 'let-one':
-      return let_one({'name': expr[1], 'val':expr[2]}, expr[3], env);
-
     /**
      * Data operations:
      * cons, car, cdr, quote

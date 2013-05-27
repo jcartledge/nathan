@@ -1,6 +1,7 @@
-var scheem = require("./eval.js");
+var evalScheem = require("./eval.js");
+var parse = require("./parse.js");
+var assert_eq = require("assert").deepEqual;
 
-var env = {'x': 0};
-var prg = ['set!', 'x', ['quote', [1, '#t']]];
-var result = scheem(prg, env);
-console.log(result);
+var env = {'bindings': {}};
+assert_eq(evalScheem(parse("'(1 #t)"), env), [1, '#t']);
+assert_eq(evalScheem(parse("(quote (1 #t))"), env), [1, '#t']);
