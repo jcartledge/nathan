@@ -8,7 +8,10 @@ var evalScheem = function (expr, env) {
     '+': function(x, y) { return  x + y; },
     '-': function(x, y) { return  x - y; },
     '*': function(x, y) { return  x * y; },
-    '/': function(x, y) { return  x / y; }
+    '/': function(x, y) { return  x / y; },
+    '=': function(x, y) { return x === y ? '#t': '#f'; },
+    '>': function(x, y) { return x > y ? '#t': '#f'; },
+    '<': function(x, y) { return x < y ? '#t': '#f'; }
   }};
   return _eval(expr, env).result;
 };
@@ -26,19 +29,6 @@ var _eval = function(expr, env) {
   }
   // Look at head of list for operation
   switch (expr[0]) {
-
-    case '=':
-      return numbinop(expr, env, function(a, b) {
-        return a === b ? '#t':'#f';
-      });
-    case '>':
-      return numbinop(expr, env, function(a, b) {
-        return a > b ? '#t':'#f';
-      });
-    case '<':
-      return numbinop(expr, env, function(a, b) {
-        return a < b ? '#t':'#f';
-      });
 
     /**
      * Var setters
@@ -97,24 +87,6 @@ var _eval = function(expr, env) {
       });
       return {'result': fn.apply(this, args), 'env': env};
   }
-};
-
-var numbinop = function(expr, env, op) {
-  var left = _eval(expr[1], env);
-  var right = _eval(expr[2], left.env);
-  require_num(op, left.result, right.result);
-  return {
-    'result':  op(left.result, right.result),
-    'env': right.env
-  };
-};
-
-var require_num = function(op) {
-  [].slice.call(arguments, 1).map(function(arg) {
-    if (typeof arg !== 'number') {
-      throw new Error(op + ': Number required, value supplied was: ' + arg);
-    }
-  });
 };
 
 var define = function(expr, env) {

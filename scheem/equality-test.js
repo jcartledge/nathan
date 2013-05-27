@@ -1,10 +1,12 @@
-var scheem = require("./eval.js");
+var evalScheem = require("./eval.js");
+var assert_eq = require("assert").deepEqual;
 
-var env = {'x': 1};
+var env = {'bindings': {'x': 1}};
 var prg = ['begin',
   ['define', 'a', ['=', 1, 'x']],
   ['>', 'x', ['+', 3, 5]]
 ];
 
-var result = scheem(prg, env);
-console.log(result);
+assert_eq(evalScheem(['=', 1, 'x'], env), '#t');
+assert_eq(evalScheem(['>', 'x', ['+', 3, 5]], env), '#f');
+assert_eq(evalScheem(['<', 'x', ['+', 3, 5]], env), '#t');
