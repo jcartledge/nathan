@@ -1,6 +1,13 @@
 var evalScheem = function (expr, env) {
-  var result = _eval(expr, env);
-  return result.result;
+
+  env = env || {'bindings': {}};
+  env.outer = { 'outer': {}, 'bindings': {
+    '+': function(x, y) { return  x + y; },
+    '-': function(x, y) { return  x - y; },
+    '*': function(x, y) { return  x * y; },
+    '/': function(x, y) { return  x / y; }
+  }};
+  return _eval(expr, env).result;
 };
 
 var _eval = function(expr, env) {
@@ -17,25 +24,6 @@ var _eval = function(expr, env) {
   // Look at head of list for operation
   switch (expr[0]) {
 
-    /**
-     * Numeric operators
-     */
-    case '*':
-      return numbinop(expr, env, function(a, b) {
-        return a * b;
-      });
-    case '/':
-      return numbinop(expr, env, function(a, b) {
-        return a / b;
-      });
-    case '+':
-      return numbinop(expr, env, function(a, b) {
-        return a + b;
-      });
-    case '-':
-      return numbinop(expr, env, function(a, b) {
-        return a - b;
-      });
     case '=':
       return numbinop(expr, env, function(a, b) {
         return a === b ? '#t':'#f';
@@ -107,13 +95,6 @@ var _eval = function(expr, env) {
     /**
      * Functions
      */
-    case 'lambda-one':
-      var v = expr[1];
-      var body = expr[2];
-      return {'result': function(val) {
-        return let_one({'name': v, 'val': val}, body, env).result;
-      }, 'env': env};
-
     case 'lambda':
       var params = expr[1];
       var lambda_body = expr[2];
@@ -126,9 +107,9 @@ var _eval = function(expr, env) {
       return {'result': lambda, 'env': env};
 
     default:
-      var fn = evalScheem(expr[0], env);
+      var fn = _eval(expr[0], env).result;
       var args = expr.slice(1).map(function(arg) {
-        return evalScheem(arg, env);
+        return _eval(arg, env).result;
       });
       return {'result': fn.apply(this, args), 'env': env};
   }
