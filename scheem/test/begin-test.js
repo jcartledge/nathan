@@ -1,4 +1,4 @@
-var evalScheem = require("./eval.js");
+var evalScheem = require("../eval.js");
 
 var env = {'bindings': {'a': 2, 'b': 7}};
 var prg = ['begin',

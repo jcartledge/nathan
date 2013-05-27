@@ -1,5 +1,5 @@
-var evalScheem = require("./eval.js");
-var parse = require("./parse.js");
+var evalScheem = require("../eval.js");
+var parse = require("../parse.js");
 var assert_eq = require("assert").deepEqual;
 
 var env = {'bindings': {}};

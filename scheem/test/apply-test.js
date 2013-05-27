@@ -1,4 +1,4 @@
-var evalScheem = require("./eval.js");
+var evalScheem = require("../eval.js");
 var assert_eq = require("assert").deepEqual;
 
 var always3 = function (x) { return 3; };
