@@ -2,6 +2,9 @@ var evalScheem = function (expr, env) {
 
   env = env || {'bindings': {}};
   env.outer = { 'outer': {}, 'bindings': {
+    'cons': function(x, xs) { return [x].concat(xs); },
+    'car': function(x) { return x[0]; },
+    'cdr': function(x) { return x.slice(1); },
     '+': function(x, y) { return  x + y; },
     '-': function(x, y) { return  x - y; },
     '*': function(x, y) { return  x * y; },
@@ -70,25 +73,6 @@ var _eval = function(expr, env) {
      * Data operations:
      * cons, car, cdr, quote
      */
-    case 'cons':
-      head = _eval(expr[1], env);
-      tail = _eval(expr[2], head.env);
-      return {
-        'result': [head.result].concat(tail.result),
-        'env': tail.env
-      };
-    case 'car':
-      tail = _eval(expr[1], env);
-      return {
-        'result': tail.result[0],
-        'env': tail.env
-      };
-    case 'cdr':
-      tail = _eval(expr[1], env);
-      return {
-        'result': tail.result.slice(1),
-        'env': tail.env
-      };
     case 'quote':
       return {'result': expr[1], env: env };
 
