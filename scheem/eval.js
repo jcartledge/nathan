@@ -11,7 +11,10 @@ var evalScheem = function (expr, env) {
     '/': function(x, y) { return  x / y; },
     '=': function(x, y) { return x === y ? '#t': '#f'; },
     '>': function(x, y) { return x > y ? '#t': '#f'; },
-    '<': function(x, y) { return x < y ? '#t': '#f'; }
+    '<': function(x, y) { return x < y ? '#t': '#f'; },
+    'alert': function() {
+      console.log.apply(console, [].slice.call(arguments));
+    }
   }};
   return _eval(expr, env).result;
 };
