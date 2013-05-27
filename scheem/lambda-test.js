@@ -3,7 +3,7 @@ var parse = require("./parse.js");
 var assert_eq = require("assert").deepEqual;
 
 function scheem(src) {
-  return evalScheem(parse(src), {});
+  return evalScheem(parse(src), {'bindings': {}});
 }
 assert_eq(
   scheem('((lambda (x) x) 5)'),
@@ -16,7 +16,7 @@ assert_eq(
 );
 
 assert_eq(
-  scheem('(((lambda (x) (lambda-one y (+ x y))) 5) 3)'),
+  scheem('(((lambda (x) (lambda (y) (+ x y))) 5) 3)'),
   8
 );
 
